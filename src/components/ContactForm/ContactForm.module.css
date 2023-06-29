@@ -1,0 +1,32 @@
+.form {
+  border: 1px solid black;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  justify-content: space-between;
+}
+
+.label {
+  display: block;
+  font-size: 1rem;
+}
+.input {
+  margin-top: 0.6rem;
+  display: block;
+  border: 1.5px solid black;
+  font-size: 1rem;
+  border-radius: 0.25rem;
+  width: 14rem;
+}
+.button {
+  width: 14.3rem;
+  height: 2rem;
+  background-color: transparent;
+  border: 1px solid black;
+  border-radius: 0.25rem;
+}
+.button:hover {
+  background-color: lightgray;
+}
