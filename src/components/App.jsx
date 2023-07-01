@@ -1,26 +1,25 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { ContactForm } from './ContactForm/ContactForm';
 import { Filter } from './Filter/Filter';
 import { ContactItem } from './ContactItem/ContactItem';
 import { ContactList } from './ContactList/ContactList';
 import css from './App.module.css';
-class App extends Component {
-  state = {
-    contacts: [],
-    name: '',
-    filter: '',
-    number: '',
-  };
-  componentDidMount() {
-    if (JSON.parse(localStorage.getItem('contacts')) !== null) {
-      this.setState({ contacts: JSON.parse(localStorage.getItem('contacts')) });
-    }
-  }
 
-  addContact = event => {
+export const App = () => {
+  const [contacts, setContacts] = useState([]);
+  const [name, setName] = useState('');
+  const [filter, setFilter] = useState('');
+  const [number, setNumber] = useState('');
+
+  useEffect(() => {
+    if (JSON.parse(localStorage.getItem('contacts')) !== null) {
+      setContacts(JSON.parse(localStorage.getItem('contacts')));
+    }
+  }, []);
+
+  const addContact = event => {
     event.preventDefault();
-    const { name, number } = this.state;
 
     if (localStorage.getItem('contacts') !== null) {
       const currentlySaved = JSON.parse(localStorage.getItem('contacts'));
@@ -30,72 +29,70 @@ class App extends Component {
       }
       currentlySaved.push({
         id: nanoid(),
-        name,
+        name: name,
         number: number.toString(),
       });
       localStorage.setItem('contacts', JSON.stringify(currentlySaved));
-      this.setState({
-        contacts: JSON.parse(localStorage.getItem('contacts')),
-      });
+      setContacts(JSON.parse(localStorage.getItem('contacts')));
     } else {
       localStorage.setItem(
         'contacts',
         JSON.stringify([{ id: nanoid(), name, number: number.toString() }])
       );
-      this.setState({
-        contacts: JSON.parse(localStorage.getItem('contacts')),
-      });
+      setContacts(JSON.parse(localStorage.getItem('contacts')));
     }
 
     event.target.reset();
   };
 
-  handleChnage = event => {
-    this.setState({ [event.target.name]: event.target.value });
+  const handleChnage = event => {
+    switch (event.target.name) {
+      case 'name':
+        setName(event.target.value);
+        break;
+      case 'number':
+        setNumber(event.target.value);
+        break;
+      case 'filter':
+        setFilter(event.target.value);
+        break;
+      default:
+        console.log('something went wrong');
+    }
   };
 
-  filterArrayByName = () => {
-    const { contacts, filter } = this.state;
+  const filterArrayByName = () => {
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  removeContact = id => {
+  const removeContact = id => {
     const currentlySaved = JSON.parse(localStorage.getItem('contacts'));
     localStorage.setItem(
       'contacts',
       JSON.stringify(currentlySaved.filter(contact => contact.id !== id))
     );
-    this.setState({
-      contacts: JSON.parse(localStorage.getItem('contacts')),
-    });
+    setContacts(JSON.parse(localStorage.getItem('contacts')));
   };
-
-  render() {
-    console.log('render');
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          fontSize: 40,
-          color: '#010101',
-        }}
-      >
-        <h1 className={css.heading}>Phonebook</h1>
-        <ContactForm onSubmit={this.addContact} onChange={this.handleChnage} />
-        <h2 className={css.secondaryHeading}>Contacts</h2>
-        <Filter onChange={this.handleChnage} />
-        <ContactList>
-          <ContactItem
-            arrayOfContacts={this.filterArrayByName()}
-            deleteFunction={this.removeContact}
-          />
-        </ContactList>
-      </div>
-    );
-  }
-}
-export default App;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'column',
+      }}
+    >
+      <h1 className={css.heading}>Phonebook</h1>
+      <ContactForm onSubmit={addContact} onChange={handleChnage} />
+      <h2 className={css.secondaryHeading}>Contacts</h2>
+      <Filter onChange={handleChnage} />
+      <ContactList>
+        <ContactItem
+          arrayOfContacts={filterArrayByName()}
+          deleteFunction={removeContact}
+        />
+      </ContactList>
+    </div>
+  );
+};
